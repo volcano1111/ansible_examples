@@ -1,0 +1,21 @@
+---
+- name: Add a new user
+  user:
+    name: "{{ item.key }}"
+    shell: /bin/bash
+    password: "{{ item.value.hashpass }}"
+    append: yes
+  with_dict: "{{ users }}"   
+
+- name: Deploy SSH Key
+  authorized_key:
+    user: "{{ item.key }}"
+    key: "{{ item.value.pub_key }}"
+    state: present
+  with_dict: "{{ users }}"
+
+- name: Allow user to use sudo without password
+  lineinfile:
+    path: /etc/sudoers
+    line: "{{ item.key }} ALL=(ALL) NOPASSWD:ALL"
+  with_dict: "{{ users }}" 

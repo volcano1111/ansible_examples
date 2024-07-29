@@ -1,0 +1,5 @@
+- hosts: all
+  vars_files:
+    - group_vars/vars_users.yml
+  roles:
+    - users

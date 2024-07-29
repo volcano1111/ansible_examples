@@ -1,0 +1,47 @@
+---
+- name: Create dir data for docker
+  file:
+    path: /data
+    state: directory
+    owner: root
+    group: root
+
+- name: Create dir etc docker for docker
+  file:
+    path: /etc/docker
+    state: directory
+    owner: root
+    group: root
+
+- name: copy docker config
+  template:
+    src: templates/daemon.json
+    dest: /etc/docker/daemon.json
+
+- name: Add Docker GPG apt Key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker Repository
+  apt_repository:
+    repo: deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   jammy stable
+    state: present
+
+- name: Update apt-get repo and cache
+  apt: update_cache=yes force_apt_get=yes cache_valid_time=3600
+
+- name: Upgrade all apt packages
+  apt: upgrade=dist force_apt_get=yes
+
+- name: Install Docker
+  apt: name={{ item }} state=latest update_cache=yes
+  loop: [ 'docker-ce',
+          'docker-ce-cli',
+          'containerd.io',
+          'docker-buildx-plugin',
+          'docker-compose-plugin',
+          'htop',
+          'iotop'
+         ]
+  notify: restart docker

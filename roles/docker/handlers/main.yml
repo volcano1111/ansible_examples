@@ -1,0 +1,16 @@
+---
+# Handlers for docker
+- name: restart docker
+  service:
+    name: docker
+    state: restarted
+
+- name: start docker
+  service:
+    name: docker
+    state: started
+
+- name: stop docker
+  service:
+    name: docker
+    state: stopped

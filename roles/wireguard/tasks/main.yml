@@ -1,0 +1,29 @@
+---
+- name: create host directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ app_user }}"
+    group: "{{ app_group }}"
+  with_items:
+    - "{{ app_dir }}/cfg"
+
+- name: Create wireguard container
+  docker_container:
+    name: "{{ app_container_name }}"
+    image: "{{ app_image_name }}"
+    state: started
+    published_ports:
+      - "0.0.0.0:51820:51820/udp"
+      - "0.0.0.0:51821:51821/tcp"
+    volumes:
+      - "{{ app_dir }}/cfg:/etc/wireguard"
+    env: "{{ app_container_env }}"
+    capabilities:
+      - net_admin
+      - sys_module
+    sysctls:
+      net.ipv4.conf.all.src_valid_mark: 1
+      net.ipv4.ip_forward: 1
+    restart_policy: always
+    recreate: yes
